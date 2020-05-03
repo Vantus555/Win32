@@ -1,0 +1,15 @@
+# Directories
+WinAPI/.vs/
+M/MLabs/.vs/
+Max/.vs/
+.vs/
+
+WinAPI/Debug/
+M/MLabs/Debug/
+Max/Debug/
+Debug/
+
+# Files
+*.user
+*.vcxproj
+*.vcxproj.filters

@@ -50,7 +50,9 @@ LRESULT CALLBACK WndProc2(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HDC hdc = GetDC(hWnd); 
 		HBRUSH brush = CreateSolidBrush(RGB(0, 255, 0));
 		SelectObject(hdc, brush);
-		
+		WCHAR hah[25];
+		wsprintf(hah, TEXT("Дескриптор окна: %d"), wParam);
+		TextOut(hdc, 10, 10, hah, 25);
 		DeleteObject(brush);
 		EndPaint(hWnd, &ps);
 	}

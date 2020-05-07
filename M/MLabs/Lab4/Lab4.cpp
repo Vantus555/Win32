@@ -1,14 +1,16 @@
-﻿// DZ.cpp : Определяет точку входа для приложения.
+﻿// Lab4.cpp : Определяет точку входа для приложения.
 //
 
 #include "framework.h"
-#include "DZ.h"
-#include <math.h>
-#include <memory>
+#include "Lab4.h"
+#include <time.h>
 
-# define M_PI           3.14159265358979323846
 #define MAX_LOADSTRING 100
 
+CRITICAL_SECTION flag;
+HANDLE thread_1;
+HANDLE thread_2; 
+HWND hWnd;
 // Глобальные переменные:
 HINSTANCE hInst;                                // текущий экземпляр
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
@@ -32,7 +34,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Инициализация глобальных строк
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_DZ, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_LAB4, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // Выполнить инициализацию приложения:
@@ -41,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DZ));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LAB4));
 
     MSG msg;
 
@@ -76,10 +78,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DZ));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB4));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_DZ);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LAB4);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -100,8 +102,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   InitializeCriticalSection(&flag);
 
    if (!hWnd)
    {
@@ -114,20 +117,76 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-//
-//  ФУНКЦИЯ: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  ЦЕЛЬ: Обрабатывает сообщения в главном окне.
-//
-//  WM_COMMAND  - обработать меню приложения
-//  WM_PAINT    - Отрисовка главного окна
-//  WM_DESTROY  - отправить сообщение о выходе и вернуться
-//
-//
+DWORD WINAPI thread1(LPVOID t) {
+    srand(time(0));
+    EnterCriticalSection(&flag);
+
+    HDC h = GetDC(hWnd);
+    HBRUSH brush = CreateSolidBrush(RGB(0, 255, 0));
+    SelectObject(h, brush);
+    /**/POINT tr[3];
+
+    tr[0].x = 100;
+    tr[0].y = 100;
+    tr[1].x = 150;
+    tr[1].y = 150;
+    tr[2].x = 50;
+    tr[2].y = 150;
+
+    POINT tr2[3];
+
+    tr2[0].x = 100;
+    tr2[0].y = 150;
+    tr2[1].x = 50;
+    tr2[1].y = 100;
+    tr2[2].x = 150;
+    tr2[2].y = 100;
+
+    int r = rand() % 2;
+    if (r == 0)
+        Polygon(h, tr, 3);
+    else
+        Polygon(h, tr2, 3);
+
+    DeleteObject(brush);
+
+    LeaveCriticalSection(&flag);
+    TerminateThread(thread_1, NULL);
+
+    return 0;
+}
+
+DWORD WINAPI thread2(LPVOID t) {
+
+    srand(time(0));
+
+    EnterCriticalSection(&flag);
+    HDC h = GetDC(hWnd);
+    
+    int time = GetCurrentTime();
+    WCHAR text[9];
+    wsprintf(text, TEXT("%d"), time);
+    TextOut(h, 10, 300, text, 9);
+
+    LeaveCriticalSection(&flag);
+
+    TerminateThread(thread_2, NULL);
+
+    return 0;
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_CREATE:
+        SetTimer(hWnd, 1, 100, NULL);
+        break;
+    case WM_TIMER:
+        thread_1 = CreateThread(NULL, 0, &thread1, NULL, 0, NULL);
+        thread_2 = CreateThread(NULL, 0, &thread2, NULL, 0, NULL);
+        InvalidateRect(hWnd, 0, true);
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -149,84 +208,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            
-            HPEN b = CreatePen(PS_SOLID, 2, RGB(0, 0, 255));
-            HPEN standart = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-
-            SelectObject(hdc, b);
-            MoveToEx(hdc, 100, 0, NULL);
-            LineTo(hdc, 100, 0);
-            LineTo(hdc, 100, 1000);
-            MoveToEx(hdc, 0, 400, NULL);
-            LineTo(hdc, 0, 400);
-            LineTo(hdc, 1000, 400);
-
-            for (size_t i = 0; i <= 720; i+=40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 2);
-                }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 3);
-                }
-            }
-            /////////////////////////////////////////////////////////////////////
-            for (size_t i = 40; i < 320; i += 40) {
-                WCHAR* hah; 
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 3);
-                }
-                else {
-                    hah = (WCHAR*)malloc(4);
-                    wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 4);
-                }
-            }
-            ////////////////////////////////////////////////////////////////
-            int y = 360;
-            for (size_t i = 40; i <= 400; i += 40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 2);
-                }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 3);
-                }
-                y-=40;
-            }
-
-            DeleteObject(b);
-
-            SelectObject(hdc, standart);
-
-            for (float a = 0; a < 4 * M_PI; a+=0.06) {
-                int x = (1 + 2*sin(15*a))*(1 + cos(35*a));
-                int r = x / cos(a);
-                int yy = r*sin(a);
-                LineTo(hdc, 20 * x + 400, 20 * yy + 400);
-            }
-            for (float a = 0; a < 4 * M_PI; a += 0.06) {
-                int x = (1 + 2 * sin(15 * a)) * (1 + cos(35 * a));
-                int r = x / cos(a);
-                int yy = r * sin(a);
-                LineTo(hdc, -20 * x + 400, -20 * yy + 400);
-            }
-            /*for (int a = 1; a < 720; a++) {
-                int y = pow((1 + 2*sin(15*a))*(1 + cos(35*a)), (1 + 5*cos(6*a))*(1 - sin(20*a)));
-                LineTo(hdc, a+100, -y+400);
-            }*/
-
-            DeleteObject(standart);
+            // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
             EndPaint(hWnd, &ps);
         }
         break;

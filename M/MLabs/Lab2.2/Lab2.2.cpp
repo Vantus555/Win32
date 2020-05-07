@@ -4,7 +4,7 @@
 
 int winWidth = 490;
 int winHeight = 510;
-int x = 100;
+int x = 500;
 int y = 100;
 unsigned int step = 100;
 
@@ -62,16 +62,36 @@ int WINAPI _tWinMain(HINSTANCE This,
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	
 	switch (message) {
+	case WM_TIMER:
+	{
+		// Изменения цвета окно по таймеры
+		RECT rc;
+		HDC hdc = GetDC(hWnd);
+		GetClientRect(hWnd, &rc);
+		SetDCBrushColor(hdc, RGB(139, 0, 255));
+		FillRect(hdc, &rc, (HBRUSH)GetStockObject(DC_BRUSH));
+	}
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;	
 	case WM_USER + 1:
+	{
 		MessageBox(hWnd,
 			_T("Дескриптор получен!\n"),
 			_T("Сообщение"), MB_OK);
+		HDC hdc = GetDC(hWnd);
+		HBRUSH brush = CreateSolidBrush(RGB(255, 255, 0));
+		SelectObject(hdc, brush);
+		WCHAR dec[25];
+		wsprintf(dec, TEXT("Дескриптор окна: %d"), wParam);
+		TextOut(hdc, 10, 10, dec, 25);
+		DeleteObject(brush);
+	}
 		break;
 	case WM_USER + 2:
-		DestroyWindow(hWnd);
+		// Установка таймера
+		SetTimer(hWnd, 1, 1000, NULL);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

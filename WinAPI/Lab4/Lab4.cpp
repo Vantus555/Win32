@@ -14,13 +14,13 @@ int WinHeight = 500;
 int Wx1 = 100;
 int Wy1 = 100;
 
-CRITICAL_SECTION flag;
 LRESULT CALLBACK WndProc1(HWND, UINT, WPARAM, LPARAM);
 
 TCHAR Win1Name[] = _T("Main1Frame");
 TCHAR Win1Title[] = _T("Потоки");
 MSG msg;
 
+CRITICAL_SECTION flag;
 HANDLE thread_1;
 HANDLE thread_2;
 m_Window Win1;
@@ -94,7 +94,7 @@ LRESULT CALLBACK WndProc1(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
-		SetTimer(hWnd, 1, 100, NULL);
+		SetTimer(hWnd, 1, 20, NULL);
 		break;
 	case WM_TIMER:
 		thread_1 = CreateThread(NULL, 0, &thread1, NULL, 0, NULL);

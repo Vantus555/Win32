@@ -1,15 +1,15 @@
-﻿// DZ.cpp : Определяет точку входа для приложения.
+﻿// Lab3.cpp : Определяет точку входа для приложения.
 //
 
 #include "framework.h"
-#include "DZ.h"
-#include <math.h>
-#include <memory>
+#include "Lab3.h"
 
-# define M_PI           3.14159265358979323846
 #define MAX_LOADSTRING 100
 
 // Глобальные переменные:
+HWND mystring;
+HWND runstr;
+HWND mycolor;
 HINSTANCE hInst;                                // текущий экземпляр
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
@@ -32,7 +32,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Инициализация глобальных строк
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_DZ, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_LAB3, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // Выполнить инициализацию приложения:
@@ -41,7 +41,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DZ));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LAB3));
 
     MSG msg;
 
@@ -76,10 +76,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DZ));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB3));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_DZ);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LAB3);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -103,6 +103,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
+   mystring = CreateWindow(_T("edit"), NULL,
+       WS_VISIBLE | WS_CHILD | WS_BORDER,
+       10, 80, 340, 100, hWnd, 0, 0, NULL); // Создание окна ввода
+
+   runstr = CreateWindow(_T("edit"), NULL,
+       WS_VISIBLE | WS_CHILD ,
+       10, 40, 340, 25, hWnd, 0, 0, NULL); // Создание окна ввода
+
+   mycolor = CreateWindow(_T("combobox"), NULL,
+       WS_VISIBLE | WS_CHILD | CBS_HASSTRINGS | CBS_DROPDOWN,
+       370, 80, 150, 100, hWnd, 0, 0, NULL); // Создание списка выбора
+
+   SendMessage(mycolor, CB_ADDSTRING, 0, (LPARAM)_T("Красный")); // Вариант  списка
+   SendMessage(mycolor, CB_ADDSTRING, 0, (LPARAM)_T("Зеленый")); // Создание списка выбора
+   SendMessage(mycolor, CB_ADDSTRING, 0, (LPARAM)_T("Синий")); // Создание списка выбора
+
    if (!hWnd)
    {
       return FALSE;
@@ -113,21 +129,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    return TRUE;
 }
-
-//
-//  ФУНКЦИЯ: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  ЦЕЛЬ: Обрабатывает сообщения в главном окне.
-//
-//  WM_COMMAND  - обработать меню приложения
-//  WM_PAINT    - Отрисовка главного окна
-//  WM_DESTROY  - отправить сообщение о выходе и вернуться
-//
-//
+int cx = 10;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_TIMER:
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -148,87 +156,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            
-            HPEN b = CreatePen(PS_SOLID, 2, RGB(0, 0, 255));
-            HPEN standart = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-
-            SelectObject(hdc, b);
-            MoveToEx(hdc, 100, 0, NULL);
-            LineTo(hdc, 100, 0);
-            LineTo(hdc, 100, 1000);
-            MoveToEx(hdc, 0, 400, NULL);
-            LineTo(hdc, 0, 400);
-            LineTo(hdc, 1000, 400);
-
-            for (size_t i = 0; i <= 720; i+=40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 2);
-                }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 3);
-                }
-            }
-            /////////////////////////////////////////////////////////////////////
-            for (size_t i = 40; i < 320; i += 40) {
-                WCHAR* hah; 
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 3);
-                }
-                else {
-                    hah = (WCHAR*)malloc(4);
-                    wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 4);
-                }
-            }
-            ////////////////////////////////////////////////////////////////
-            int y = 360;
-            for (size_t i = 40; i <= 400; i += 40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 2);
-                }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 3);
-                }
-                y-=40;
-            }
-
-            DeleteObject(b);
-
-            SelectObject(hdc, standart);
-
-            for (float a = 0; a < 4 * M_PI; a+=0.06) {
-                int x = (1 + 2*sin(15*a))*(1 + cos(35*a));
-                int r = x / cos(a);
-                int yy = r*sin(a);
-                LineTo(hdc, 20 * x + 400, 20 * yy + 400);
-            }
-            for (float a = 0; a < 4 * M_PI; a += 0.06) {
-                int x = (1 + 2 * sin(15 * a)) * (1 + cos(35 * a));
-                int r = x / cos(a);
-                int yy = r * sin(a);
-                LineTo(hdc, -20 * x + 400, -20 * yy + 400);
-            }
-            /*for (int a = 1; a < 720; a++) {
-                int y = pow((1 + 2*sin(15*a))*(1 + cos(35*a)), (1 + 5*cos(6*a))*(1 - sin(20*a)));
-                LineTo(hdc, a+100, -y+400);
-            }*/
-
-            DeleteObject(standart);
             EndPaint(hWnd, &ps);
         }
+        break;
+    case WM_LBUTTONDOWN:
+    {
+        HDC hdc = GetDC(hWnd);
+        CHAR text1[46] = ""; 
+        GetWindowText(mystring, (LPWSTR)text1, 23);// Получение текста
+        SetWindowText(runstr, (LPWSTR)text1);// Установка текста
+        UpdateWindow(runstr); // Обновление окна
+        int i = 0;
+        while (i<=60) {
+            SetWindowPos(runstr, NULL, cx + i, 40, 340, 100, 1);// Передвижение окна
+            UpdateWindow(runstr); // Обновление окна
+            Sleep(10);
+            i++;
+        }
+    }
         break;
     case WM_DESTROY:
         PostQuitMessage(0);

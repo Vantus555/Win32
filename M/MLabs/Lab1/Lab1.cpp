@@ -11,7 +11,7 @@ unsigned int step = 100;
 WNDCLASS wc; 
 int r = 0, g = 191, b = 255;
 
-HBRUSH color_of_window = CreateSolidBrush(RGB(r, g, b));
+HBRUSH color_of_window = CreateSolidBrush(RGB(r, g, b)); // Цвет окна
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -70,13 +70,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		hdc = BeginPaint(hWnd, &ps);
 		brush = CreateSolidBrush(RGB(255, 0, 0));
 		SelectObject(hdc, brush);
-		//Pie(hdc, 10, 10, 470, 200, 240, 10, 240, 200);
-		//Rectangle(hdc, 200, , (winWidth / 2) - 30, (winHeight / 2) - 10);
+		// Рисуем квадрат
 		Rectangle(hdc, (winWidth / 2) - step, (winHeight / 2) - step, (winWidth / 2) + step, (winHeight / 2) + step);
 		EndPaint(hWnd, &ps);
 	}
 		break;
 	case WM_LBUTTONUP:
+		// Изменяем размер квадрата
 		step += 10;
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
@@ -86,9 +86,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		g = rand() % 255;
 		b = rand() % 255;
 
+		// Устанавливаем рандомный цвет окна
 		SetClassLong(hWnd, GCL_HBRBACKGROUND, (LONG)CreateSolidBrush(RGB(r, g, b)));
 		InvalidateRect(hWnd, NULL, TRUE);
-		//MessageBox(hWnd, "������ ����������!", "�������", 0);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

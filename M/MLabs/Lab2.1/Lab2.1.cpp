@@ -15,10 +15,10 @@ HBRUSH color_of_window = CreateSolidBrush(RGB(r, g, b));
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-TCHAR WinName[] = _T("MainFrame");
-TCHAR WinTitle[] = _T("Окно 1");
-TCHAR WinName2[] = _T("MainFrame2");
-TCHAR WinTitle2[] = _T("Окно 2");
+TCHAR WinName[] = _T("MainFrame"); // Имя 1-ого окна
+TCHAR WinTitle[] = _T("Окно 1"); // Надпись 1-ого окна
+TCHAR WinName2[] = _T("MainFrame2"); // Имя 2-ого окна
+TCHAR WinTitle2[] = _T("Окно 2"); // Надпись 2-ого окна
 
 int WINAPI _tWinMain(HINSTANCE This,
 	HINSTANCE Prev,
@@ -69,8 +69,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		break; case WM_LBUTTONUP:
 		{
 			if (h) {
+				// Вывод сообщения
 				int success = MessageBox(hWnd, _T("Окно 2 открыто!"), _T("Сообщение"), MB_OK);
 				if (success) {
+				// Отправка сообщения в другое окно
 					SendMessage(h, WM_USER + 1, WPARAM(hWnd), 0);
 				}
 			}
@@ -81,6 +83,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			break;
 		case WM_RBUTTONUP:
 			if (h) {
+				// Отправка сообщения в другое окно и закрытие первого окна
 				SendMessage(h, WM_USER + 2, WPARAM(hWnd), 0);
 				Sleep(5000);
 				DestroyWindow(hWnd);

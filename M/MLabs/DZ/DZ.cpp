@@ -4,9 +4,7 @@
 #include "framework.h"
 #include "DZ.h"
 #include <math.h>
-#include <memory>
 
-# define M_PI           3.14159265358979323846
 #define MAX_LOADSTRING 100
 
 // Глобальные переменные:
@@ -102,7 +100,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-   SetTimer(hWnd, 1, 20, NULL);
+
    if (!hWnd)
    {
       return FALSE;
@@ -149,89 +147,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            
-            HPEN b = CreatePen(PS_SOLID, 2, RGB(0, 0, 255));
-            HPEN standart = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 
-            SelectObject(hdc, b);
-            MoveToEx(hdc, 100, 0, NULL);
-            LineTo(hdc, 100, 0);
-            LineTo(hdc, 100, 1000);
             MoveToEx(hdc, 0, 400, NULL);
+
             LineTo(hdc, 0, 400);
-            LineTo(hdc, 1000, 400);
+            LineTo(hdc, 10000,400);
 
-            for (size_t i = 0; i <= 720; i+=40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 2);
-                }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 100 + i, 400, hah, 3);
-                }
-            }
-            /////////////////////////////////////////////////////////////////////
+            MoveToEx(hdc, 600, 0, NULL);
+
+            LineTo(hdc, 600, 0);
+            LineTo(hdc, 600, 10000);
+
+            TextOut(hdc, 610 , 410, _T("0"), 1);
             for (size_t i = 40; i < 320; i += 40) {
-                WCHAR* hah; 
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(3);
+                WCHAR hah[5];
+                if (i >= 10 && i <= 100) {
                     wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 3);
+                    TextOut(hdc, 620, 400 + i, hah, 4);
+                    TextOut(hdc, 600 - i, 410, hah, 4);
+                    wsprintf(hah, TEXT("%d"), i);
+                    TextOut(hdc, 600 + i, 410, hah, 3);
+                    TextOut(hdc, 620, 400 - i, hah, 3);
                 }
                 else {
-                    hah = (WCHAR*)malloc(4);
                     wsprintf(hah, TEXT("-%d"), i);
-                    TextOut(hdc, 50, 400 + i, hah, 4);
-                }
-            }
-            ////////////////////////////////////////////////////////////////
-            int y = 360;
-            for (size_t i = 40; i <= 400; i += 40) {
-                WCHAR* hah;
-                if (i >= 10 && i < 100) {
-                    hah = (WCHAR*)malloc(2);
+                    TextOut(hdc, 620, 400 + i, hah, 4);
+                    TextOut(hdc, 600 - i, 410, hah, 4);
                     wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 2);
+                    TextOut(hdc, 600 + i, 410, hah, 3);
+                    TextOut(hdc, 620, 400 - i, hah, 3);
                 }
-                else {
-                    hah = (WCHAR*)malloc(3);
-                    wsprintf(hah, TEXT("%d"), i);
-                    TextOut(hdc, 50, y, hah, 3);
-                }
-                y-=40;
             }
 
-            DeleteObject(b);
-
-            SelectObject(hdc, standart);
-
-            /*for (float a = 0; a < 4 * M_PI; a+=0.06) {
-                int x = (1 + 2*sin(15*a))*(1 + cos(35*a));
-                int r = x / cos(a);
-                int yy = r*sin(a);
-                LineTo(hdc, 20 * x + 400, 20 * yy + 400);
-            }
-            for (float a = 0; a < 4 * M_PI; a += 0.06) {
-                int x = (1 + 2 * sin(15 * a)) * (1 + cos(35 * a));
-                int r = x / cos(a);
-                int yy = r * sin(a);
-                LineTo(hdc, -20 * x + 400, -20 * yy + 400);
-                
-            }*/
-            float r = 30, x = 0, yy = 0;
-            for (float a = 0; a < M_PI; a+=0.1) {
-                //int y = pow((1 + 2 * sin(15 * a)) * (1 + cos(35 * a)), (1 + 5 * cos(6 * a)) * (1 - sin(20 * a)));
-                //r = cos(2 * a);
-                x =  r * cos(a);
-                yy =  -r * sin(2*a);
-                LineTo(hdc, x+400, yy+400);
+            for (float t = -1; t < 1; t+=0.01) {
+                float x = sin(8*t + 2) + sin(t / 1.1);
+                float y = sin(9*t) + 5*sin((0.5)*t);
+                if(t==-1)
+                    MoveToEx(hdc, 40 * x + 600, -40 * y + 400, NULL);
+                else
+                    LineTo(hdc, 40*x + 600, -40*y + 400);
             }
 
-            DeleteObject(standart);
+
             EndPaint(hWnd, &ps);
         }
         break;
